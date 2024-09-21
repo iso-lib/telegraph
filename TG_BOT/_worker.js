@@ -159,7 +159,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
             <div id="cacheContent" style="display: none;"></div>
           </form>
         </div>
-      <p style="font-size: 14px; text-align: center;">
+              <p style="font-size: 14px; text-align: center;">
         可多选上传，支持 JPEG、JPG、PNG、GIF、MP4 格式
       </p>
       <p style="font-size: 14px; text-align: center;">
@@ -688,7 +688,7 @@ async function generateAdminPage(DATABASE) {
 async function fetchMediaData(DATABASE) {
   const result = await DATABASE.prepare('SELECT * FROM media ORDER BY timestamp DESC').all();
   return result.results.map(row => ({
-    key: row.file_path,
+    key: row.file_id,
     timestamp: row.timestamp,
     url: row.url
   }));
@@ -724,7 +724,7 @@ async function handleUploadRequest(request, DATABASE, enableAuth, USERNAME, PASS
     const filePathData = await filePathResponse.json();
     const filePath = filePathData.result.file_path;
 
-    const existingMedia = await DATABASE.prepare('SELECT url FROM media WHERE file_path = ?').bind(filePath).first();
+    const existingMedia = await DATABASE.prepare('SELECT url FROM media WHERE file_id = ?').bind(fileId).first();
     if (existingMedia) {
       return new Response(JSON.stringify({ data: existingMedia.url }), {
         status: 200,
@@ -733,9 +733,10 @@ async function handleUploadRequest(request, DATABASE, enableAuth, USERNAME, PASS
     }
 
     const timestamp = Date.now();
-    const imageURL = `https://${domain}/${filePath}`;
+    const fileExtension = filePath.split('.').pop().toLowerCase();
+    const imageURL = `https://${domain}/${fileId}.${fileExtension}`;
 
-    await DATABASE.prepare('INSERT INTO media (file_path, timestamp, url) VALUES (?, ?, ?)').bind(filePath, timestamp, imageURL).run();
+    await DATABASE.prepare('INSERT INTO media (file_id, fp_ts, file_path, timestamp, url) VALUES (?, ?, ?, ?, ?)').bind(fileId, timestamp, filePath, timestamp, imageURL).run();
 
     return new Response(JSON.stringify({ data: imageURL }), {
       status: 200,
@@ -749,12 +750,25 @@ async function handleUploadRequest(request, DATABASE, enableAuth, USERNAME, PASS
 
 async function handleImageRequest(pathname, DATABASE, TG_BOT_TOKEN) {
   const cleanedPathname = pathname.startsWith('/') ? pathname.slice(1) : pathname;
+  const fileId = cleanedPathname.split('.').shift();
+  const result = await DATABASE.prepare('SELECT file_path, fp_ts FROM media WHERE file_id = ?').bind(fileId).first();
 
-  const result = await DATABASE.prepare('SELECT file_path, url FROM media WHERE file_path = ?').bind(cleanedPathname).first();
   if (result) {
-    const filePath = result.file_path;
-    const telegramFileUrl = `https://api.telegram.org/file/bot${TG_BOT_TOKEN}/${filePath}`;
+    let filePath = result.file_path;
+    const fpTs = result.fp_ts;
+    const ts = Date.now();
+    const tsDiff = ts - fpTs;
+    if(tsDiff > 3600000){
+      const filePathResponse = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/getFile?file_id=${fileId}`);
+      if (!filePathResponse.ok) {
+        return new Response(null, { status: 404 });
+      }
+      const filePathData = await filePathResponse.json();
+      filePath = filePathData.result.file_path;
+      await DATABASE.prepare(`update media set fp_ts = ? , file_path = ? where file_id = ?`).bind(ts, filePath, fileId).run();
+    }
 
+    const telegramFileUrl = `https://api.telegram.org/file/bot${TG_BOT_TOKEN}/${filePath}`;
     const response = await fetch(telegramFileUrl);
     if (response.ok) {
       const fileExtension = filePath.split('.').pop().toLowerCase();
@@ -772,6 +786,9 @@ async function handleImageRequest(pathname, DATABASE, TG_BOT_TOKEN) {
     } else {
       return new Response(null, { status: 404 });
     }
+  } else {
+      const url = new URL(`https://telegra.ph/${pathname}`);
+      return fetch(url);
   }
   return new Response(null, { status: 404 });
 }
@@ -803,7 +820,7 @@ async function handleDeleteImagesRequest(request, DATABASE) {
       return new Response(JSON.stringify({ message: '没有要删除的项' }), { status: 400 });
     }
     const placeholders = keysToDelete.map(() => '?').join(',');
-    await DATABASE.prepare(`DELETE FROM media WHERE file_path IN (${placeholders})`).bind(...keysToDelete).run();
+    await DATABASE.prepare(`DELETE FROM media WHERE file_id IN (${placeholders})`).bind(...keysToDelete).run();
     return new Response(JSON.stringify({ message: '删除成功' }), { status: 200 });
   } catch (error) {
     console.error('删除图片时出错:', error);
