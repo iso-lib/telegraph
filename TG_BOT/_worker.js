@@ -83,7 +83,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
           padding: 20px;
           width: 90%;
-          max-width: 400px;
+          max-width: 800px;
           text-align: center;
           margin: 0 auto;
           position: relative;
@@ -160,11 +160,12 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           </form>
         </div>
         <p style="font-size: 16px; text-align: center;">
-          可多选上传，支持 JPEG、JPG、PNG、GIF、MP4 格式
+          可多选文件上传，支持 JPEG、JPG、PNG、GIF、MP4 格式
         </p>
         <p style="font-size: 14px; text-align: center;">
           GIF 和 MP4 的大小需 ≤ 5MB 
         </p>
+        <p>
         <p style="font-size: 18px; color:green;text-align: center;">
           长期 | 安全 | 稳定 | 免费
         </p>
