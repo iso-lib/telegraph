@@ -83,7 +83,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
           padding: 20px;
           width: 90%;
-          max-width: 800px;
+          max-width: 600px;
           text-align: center;
           margin: 0 auto;
           position: relative;
