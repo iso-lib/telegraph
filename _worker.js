@@ -48,9 +48,9 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
   <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Telegraph图床-基于Workers的图床服务">
+  <meta name="description" content="随意图床-基于Workers的图床服务">
   <meta name="keywords" content="Telegraph图床,Workers图床, Cloudflare, Workers,telegra.ph, 图床">
-  <title>Telegraph图床-基于Workers的图床服务</title>
+  <title>随意图床-基于TG-BOT的图床服务</title>
   <link rel="icon" href="https://p1.meituan.net/csc/c195ee91001e783f39f41ffffbbcbd484286.ico" type="image/x-icon">
   <link href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/twitter-bootstrap/4.6.1/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap-fileinput/5.2.7/css/fileinput.min.css" rel="stylesheet" />
@@ -83,7 +83,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
           padding: 20px;
           width: 90%;
-          max-width: 400px;
+          max-width: 600px;
           text-align: center;
           margin: 0 auto;
           position: relative;
@@ -143,7 +143,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
 <body>
   <div class="background" id="background"></div>
   <div class="card">
-      <div class="title">Telegraph图床</div>
+      <div class="title">随意图床</div>
       <button type="button" class="btn" id="viewCacheBtn" title="查看历史记录"><i class="fas fa-clock"></i></button>
       <div class="card-body">
           <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
@@ -161,6 +161,18 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
               <div id="cacheContent" style="display: none;"></div>
           </form>
       </div>
+
+        <p style="font-size: 16px; text-align: center;">
+          可多选文件上传，支持 JPEG、JPG、PNG、GIF、MP4 格式
+        </p>
+        <p style="font-size: 14px; text-align: center;">
+          MP4 视频文件的大小需 ≤ 20MB 
+        </p>
+        <p>
+        <p style="font-size: 18px; color:green;text-align: center;">
+          长期 | 安全 | 稳定 | 免费
+        </p>
+        
       <p class="project-link">项目开源于 GitHub - <a href="https://github.com/0-RTT/telegraph" target="_blank" rel="noopener noreferrer">0-RTT/telegraph</a></p>
       <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js" type="application/javascript"></script>
       <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap-fileinput/5.2.7/js/fileinput.min.js" type="application/javascript"></script>
