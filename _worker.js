@@ -148,7 +148,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
 <body>
   <div class="background" id="background"></div>
   <div class="card">
-      <div class="title">随意图床</div>
+      <div class="title" style="color:red; font-size: 26px; text-align: center;">随意图床</div>
       <button type="button" class="btn" id="viewCacheBtn" title="查看历史记录"><i class="fas fa-clock"></i></button>
       <div class="card-body">
           <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
@@ -168,7 +168,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
       </div>
 
         <p style="font-size: 16px; text-align: center;">
-          可多选文件上传，支持 JPEG、JPG、PNG、GIF、MP4 格式
+          可多选文件上传，支持 JPEG、JPG、PNG、WEBP、GIF、MP4 格式
         </p>
         <p style="font-size: 14px; text-align: center;">
           MP4 视频文件的大小需 ≤ 20MB 
