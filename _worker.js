@@ -762,33 +762,50 @@ async function handleImageRequest(request, DATABASE, TG_BOT_TOKEN) {
   const cachedResponse = await cache.match(cacheKey);
   if (cachedResponse) return cachedResponse;
   const result = await DATABASE.prepare('SELECT fileId FROM media WHERE url = ?').bind(requestedUrl).first();
-  if (result) {
-    const fileId = result.fileId;
-    const getFileResponse = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/getFile?file_id=${fileId}`);
-    if (!getFileResponse.ok) return new Response(null, { status: 404 });
-    const fileData = await getFileResponse.json();
-    const filePath = fileData.result.file_path;
-    const telegramFileUrl = `https://api.telegram.org/file/bot${TG_BOT_TOKEN}/${filePath}`;
-    const response = await fetch(telegramFileUrl);
-    if (response.ok) {
-      const fileExtension = requestedUrl.split('.').pop().toLowerCase();
-      let contentType = 'text/plain';
-      if (fileExtension === 'jpg' || fileExtension === 'jpeg') contentType = 'image/jpeg';
-      if (fileExtension === 'png') contentType = 'image/png';
-      if (fileExtension === 'gif') contentType = 'image/gif';
-      if (fileExtension === 'webp') contentType = 'image/webp';
-      if (fileExtension === 'mp4') contentType = 'video/mp4';
-      const headers = new Headers(response.headers);
-      headers.set('Content-Type', contentType);
-      headers.set('Content-Disposition', 'inline');
-      const responseToCache = new Response(response.body, { status: response.status, headers });
-      await cache.put(cacheKey, responseToCache.clone());
-      return responseToCache;
-    }
+  if (!result) {
+    const notFoundResponse = new Response('资源不存在', { status: 404 });
+    await cache.put(cacheKey, notFoundResponse.clone());
+    return notFoundResponse;
   }
-  const notFoundResponse = new Response(null, { status: 404 });
-  await cache.put(cacheKey, notFoundResponse.clone());
-  return notFoundResponse;
+  const fileId = result.fileId;
+  let filePath;
+  let attempts = 0;
+  const maxAttempts = 3;
+  while (attempts < maxAttempts) {
+    const getFilePath = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/getFile?file_id=${fileId}`);
+    if (!getFilePath.ok) {
+      return new Response('getFile请求失败', { status: 500 });
+    }
+    const fileData = await getFilePath.json();
+    if (fileData.ok && fileData.result.file_path) {
+      filePath = fileData.result.file_path;
+      break;
+    }
+    attempts++;
+  }
+  if (!filePath) {
+    const notFoundResponse = new Response('未找到FilePath', { status: 404 });
+    await cache.put(cacheKey, notFoundResponse.clone());
+    return notFoundResponse;
+  }
+  const getFileResponse = `https://api.telegram.org/file/bot${TG_BOT_TOKEN}/${filePath}`;
+  const response = await fetch(getFileResponse);
+  if (!response.ok) {
+    return new Response('获取文件内容失败', { status: 500 });
+  }
+  const fileExtension = requestedUrl.split('.').pop().toLowerCase();
+  let contentType = 'text/plain';
+  if (fileExtension === 'jpg' || fileExtension === 'jpeg') contentType = 'image/jpeg';
+  if (fileExtension === 'png') contentType = 'image/png';
+  if (fileExtension === 'gif') contentType = 'image/gif';
+  if (fileExtension === 'webp') contentType = 'image/webp';
+  if (fileExtension === 'mp4') contentType = 'video/mp4';
+  const headers = new Headers(response.headers);
+  headers.set('Content-Type', contentType);
+  headers.set('Content-Disposition', 'inline');
+  const responseToCache = new Response(response.body, { status: response.status, headers });
+  await cache.put(cacheKey, responseToCache.clone());
+  return responseToCache;
 }
 
 async function handleBingImagesRequest(request) {

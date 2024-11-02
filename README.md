@@ -2,6 +2,9 @@
 基于 Cloudflare Worker 和 Pages 的图床，轻松实现无服务器部署！
 
 # 更新日志
+## 2024年11月1日
+- 修复上传后无法加载的问题
+
 ## 2024年10月19日
 - 修复webp无法上传的BUG。
 - 优化数据库结构。需要对已有数据进行迁移，[点击查看教程](https://github.com/0-RTT/telegraph/releases/tag/v2.0)。
@@ -56,6 +59,8 @@
 | `TG_BOT_TOKEN` | 通过 @BotFather 获取的 Telegram 机器人令牌。                        |
 | `TG_CHAT_ID`   | 填账号的ID机器人就发给你，填频道或者群组的，机器人就发到频道或者群组，最终的文件链接是一样的。 |
 
+⚠️注意:如果填频道的```TG_CHAT_ID```，需要把TG_BOT添加到频道，并且设置为管理员！
+
 使用机器人@VersaToolsBot获取ID，将你和机器人或者频道的消息转发给机器人即可！
 
 在绑定数据库的时候使用
@@ -77,7 +82,7 @@ CREATE TABLE media (
 );
 ```
 ### 填写示例：
-![image](https://kycloud3.koyoo.cn/2024092389dc0202409232021524424.png) 
+![image](https://kycloud3.koyoo.cn/202411013c03f202411010959426186.png)
 
 [Pages部署教程](https://github.com/0-RTT/telegraph?tab=readme-ov-file#pages%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B)
 
