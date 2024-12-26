@@ -9,7 +9,7 @@ export default {
     const enableAuth = env.ENABLE_AUTH === 'true';
     const TG_BOT_TOKEN = env.TG_BOT_TOKEN;
     const TG_CHAT_ID = env.TG_CHAT_ID;
-    const maxSizeMB = env.MAX_SIZE_MB ? parseInt(env.MAX_SIZE_MB, 10) : 10;
+    const maxSizeMB = env.MAX_SIZE_MB ? parseInt(env.MAX_SIZE_MB， 100) : 100;
     const maxSize = maxSizeMB * 1024 * 1024;
 
     switch (pathname) {
@@ -53,9 +53,9 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
   <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="随意图床-基于Workers的图床服务">
-  <meta name="keywords" content="Telegraph图床,Workers图床, Cloudflare, Workers,telegra.ph, 图床">
-  <title>随意图床-基于TG-BOT的图床服务</title>
+  <meta name="description" content="随意文件床-基于Workers的图床/文件床/视频床服务">
+  <meta name="keywords" content="Telegraph图床,Workers图床, telegraph文件床, telegraph视频床, Cloudflare, Workers,telegra.ph, 图床">
+  <title>随意文件床-基于TG-BOT的文件床服务</title>
   <link rel="icon" href="https://p1.meituan.net/csc/c195ee91001e783f39f41ffffbbcbd484286.ico" type="image/x-icon">
   <link href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/twitter-bootstrap/4.6.1/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap-fileinput/5.2.7/css/fileinput.min.css" rel="stylesheet" />
@@ -162,7 +162,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
 <body>
   <div class="background" id="background"></div>
   <div class="card">
-      <div class="title" style="color:red; font-size: 48px; text-align: center;">随意图床</div>
+      <div class="title" style="color:red; font-size: 48px; text-align: center;">随意文件床</div>
       <button type="button" class="btn" id="viewCacheBtn" title="查看历史记录"><i class="fas fa-clock"></i></button>
       <button type="button" class="btn" id="compressionToggleBtn"><i class="fas fa-compress"></i></button>
       <div class="card-body">
@@ -183,10 +183,10 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
       </div>
 
         <p style="font-size: 16px; text-align: center;">
-          可多选文件上传，支持 JPEG、JPG、PNG、WEBP、GIF、MP4 格式
+          可多选文件上传，支持一切文件格式,包括且不限于图片,视频,文档等
         </p>
         <p style="font-size: 14px; text-align: center;">
-          MP4 视频文件的大小需 ≤ 20MB 
+          文件大小需 ≤ 100MB 
         </p>
         <p>
         <p style="font-size: 18px; color:green;text-align: center;">
