@@ -9,6 +9,8 @@ export default {
     const enableAuth = env.ENABLE_AUTH === 'true';
     const TG_BOT_TOKEN = env.TG_BOT_TOKEN;
     const TG_CHAT_ID = env.TG_CHAT_ID;
+    const maxSizeMB = env.MAX_SIZE_MB ? parseInt(env.MAX_SIZE_MB, 10) : 10;
+    const maxSize = maxSizeMB * 1024 * 1024;
 
     switch (pathname) {
       case '/':
@@ -16,18 +18,16 @@ export default {
       case `/${adminPath}`:
         return await handleAdminRequest(DATABASE, request, USERNAME, PASSWORD);
       case '/upload':
-        return request.method === 'POST' ? await handleUploadRequest(request, DATABASE, enableAuth, USERNAME, PASSWORD, domain, TG_BOT_TOKEN, TG_CHAT_ID) : new Response('Method Not Allowed', { status: 405 });
+        return request.method === 'POST' ? await handleUploadRequest(request, DATABASE, enableAuth, USERNAME, PASSWORD, domain, TG_BOT_TOKEN, TG_CHAT_ID, maxSize) : new Response('Method Not Allowed', { status: 405 });
       case '/bing-images':
         return handleBingImagesRequest();
       case '/delete-images':
-        return handleDeleteImagesRequest(request, DATABASE);
+        return await handleDeleteImagesRequest(request, DATABASE, USERNAME, PASSWORD);
       default:
         return await handleImageRequest(request, DATABASE, TG_BOT_TOKEN);
     }
   }
 };
-
-let isAuthenticated = false;
 
 function authenticate(request, USERNAME, PASSWORD) {
   const authHeader = request.headers.get('Authorization');
@@ -110,6 +110,20 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
       #viewCacheBtn:hover {
           color: rgba(0, 0, 0, 0.4);
       }
+      #compressionToggleBtn {
+          position: absolute;
+          top: 10px;
+          right: 50px;
+          background: none;
+          border: none;
+          color: rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+          font-size: 24px;
+          transition: color 0.3s ease;
+      }
+      #compressionToggleBtn:hover {
+          color: rgba(0, 0, 0, 0.4);
+      }
       #cacheContent {
           margin-top: 20px;
           max-height: 200px;
@@ -150,6 +164,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
   <div class="card">
       <div class="title" style="color:red; font-size: 48px; text-align: center;">随意图床</div>
       <button type="button" class="btn" id="viewCacheBtn" title="查看历史记录"><i class="fas fa-clock"></i></button>
+      <button type="button" class="btn" id="compressionToggleBtn"><i class="fas fa-compress"></i></button>
       <div class="card-body">
           <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
               <div class="file-input-container">
@@ -219,8 +234,19 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
       $(document).ready(function() {
         let originalImageURLs = [];
         let isCacheVisible = false;
+        let enableCompression = true;
         initFileInput();
         setBackgroundImages();
+    
+        const tooltipText = enableCompression ? '关闭压缩' : '开启压缩';
+        $('#compressionToggleBtn').attr('title', tooltipText);
+        $('#compressionToggleBtn').on('click', function() {
+            enableCompression = !enableCompression;
+            const icon = $(this).find('i');
+            icon.toggleClass('fa-compress fa-expand');
+            const tooltipText = enableCompression ? '关闭压缩' : '开启压缩';
+            $(this).attr('title', tooltipText);
+        });
     
         function initFileInput() {
           $("#fileInput").fileinput({
@@ -237,60 +263,58 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
         async function handleFileSelection() {
           const files = $('#fileInput')[0].files;
           for (let i = 0; i < files.length; i++) {
-            await uploadFile(files[i]);
+            const file = files[i];
+            const fileHash = await calculateFileHash(file);
+            const cachedData = getCachedData(fileHash);
+            if (cachedData) {
+                handleCachedFile(cachedData);
+            } else {
+                await uploadFile(file, fileHash);
+            }
           }
         }
     
-        async function uploadFile(file) {
+        function getCachedData(fileHash) {
+            const cacheData = JSON.parse(localStorage.getItem('uploadCache')) || [];
+            return cacheData.find(item => item.hash === fileHash);
+        }
+    
+        function handleCachedFile(cachedData) {
+            if (!originalImageURLs.includes(cachedData.url)) {
+                originalImageURLs.push(cachedData.url);
+                updateFileLinkDisplay();
+                toastr.info('已从缓存中读取数据');
+            }
+        }
+    
+        function updateFileLinkDisplay() {
+            $('#fileLink').val(originalImageURLs.join('\\n\\n'));
+            $('.form-group').show();
+            adjustTextareaHeight($('#fileLink')[0]);
+        }
+    
+        async function calculateFileHash(file) {
+          const arrayBuffer = await file.arrayBuffer();
+          const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+    
+        function isFileInCache(fileHash) {
+          const cacheData = JSON.parse(localStorage.getItem('uploadCache')) || [];
+          return cacheData.some(item => item.hash === fileHash);
+        }
+    
+        async function uploadFile(file, fileHash) {
           try {
             toastr.info('上传中...', '', { timeOut: 0 });
             const interfaceInfo = {
-              acceptTypes: 'image/*,video/*',
-              maxFileSize: 20 * 1024 * 1024,
-              enableCompression: true
+              enableCompression: enableCompression
             };
-            const acceptedTypes = interfaceInfo.acceptTypes.split(',');
-            const isAcceptedType = acceptedTypes.some(type => {
-              return type.includes('*') ? file.type.startsWith(type.split('/')[0]) : file.type === type;
-            });
-            if (!isAcceptedType) {
-              toastr.error('仅支持图片或视频格式的文件。');
-              return;
-            }
-            if (file.type.startsWith('video/') || file.type === 'image/gif') {
-              if (file.size > interfaceInfo.maxFileSize) {
-                toastr.error('视频或 GIF 文件必须≤20MB，上传失败。');
-                return;
-              }
-              const formData = new FormData($('#uploadForm')[0]);
-              formData.set('file', file, file.name);
-              const uploadResponse = await fetch('/upload', { method: 'POST', body: formData });
-              const responseData = await handleUploadResponse(uploadResponse);
-              if (responseData.error) {
-                toastr.error(responseData.error);
-              } else {
-                originalImageURLs.push(responseData.data);
-                $('#fileLink').val(originalImageURLs.join('\\n\\n'));
-                $('.form-group').show();
-                adjustTextareaHeight($('#fileLink')[0]);
-                toastr.success('文件上传成功！');
-                saveToLocalCache(responseData.data, file.name);
-              }
-              return;
-            }
-            if (interfaceInfo.enableCompression) {
+            if (file.type.startsWith('image/') && file.type !== 'image/gif' && interfaceInfo.enableCompression) {
               toastr.info('正在压缩...', '', { timeOut: 0 });
               const compressedFile = await compressImage(file);
-              if (compressedFile.size > interfaceInfo.maxFileSize) {
-                toastr.error('压缩后文件仍然超过最大限制（20MB），上传失败。');
-                return;
-              }
               file = compressedFile;
-            } else {
-              if (file.size > interfaceInfo.maxFileSize) {
-                toastr.error('文件必须≤20MB');
-                return;
-              }
             }
             const formData = new FormData($('#uploadForm')[0]);
             formData.set('file', file, file.name);
@@ -304,7 +328,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
               $('.form-group').show();
               adjustTextareaHeight($('#fileLink')[0]);
               toastr.success('文件上传成功！');
-              saveToLocalCache(responseData.data, file.name);
+              saveToLocalCache(responseData.data, file.name, fileHash);
             }
           } catch (error) {
             console.error('处理文件时出现错误:', error);
@@ -324,7 +348,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           }
         }
     
-        $(document).on('paste', function(event) {
+        $(document).on('paste', async function(event) {
           const clipboardData = event.originalEvent.clipboardData;
           if (clipboardData && clipboardData.items) {
             for (let i = 0; i < clipboardData.items.length; i++) {
@@ -332,6 +356,10 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
               if (item.kind === 'file') {
                 const pasteFile = item.getAsFile();
                 const dataTransfer = new DataTransfer();
+                const existingFiles = $('#fileInput')[0].files;
+                for (let j = 0; j < existingFiles.length; j++) {
+                  dataTransfer.items.add(existingFiles[j]);
+                }
                 dataTransfer.items.add(pasteFile);
                 $('#fileInput')[0].files = dataTransfer.files;
                 $('#fileInput').trigger('change');
@@ -341,19 +369,12 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           }
         });
     
-        async function compressImage(file, quality = 0.5, maxResolution = 20000000) {
+        async function compressImage(file, quality = 0.75) {
           return new Promise((resolve) => {
             const image = new Image();
             image.onload = () => {
-              const width = image.width;
-              const height = image.height;
-              const resolution = width * height;
-              let scale = 1;
-              if (resolution > maxResolution) {
-                scale = Math.sqrt(maxResolution / resolution);
-              }
-              const targetWidth = Math.round(width * scale);
-              const targetHeight = Math.round(height * scale);
+              const targetWidth = image.width;
+              const targetHeight = image.height;
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               canvas.width = targetWidth;
@@ -428,10 +449,10 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           $('#urlBtn, #bbcodeBtn, #markdownBtn, #fileLink').parent('.form-group').hide();
         }
     
-        function saveToLocalCache(url, fileName) {
+        function saveToLocalCache(url, fileName, fileHash) {
           const timestamp = new Date().toLocaleString('zh-CN', { hour12: false });
           const cacheData = JSON.parse(localStorage.getItem('uploadCache')) || [];
-          cacheData.push({ url, fileName, timestamp });
+          cacheData.push({ url, fileName, hash: fileHash, timestamp });
           localStorage.setItem('uploadCache', JSON.stringify(cacheData));
         }
     
@@ -500,18 +521,23 @@ async function generateAdminPage(DATABASE) {
   const mediaHtml = mediaData.map(({ url }) => {
     const fileExtension = url.split('.').pop().toLowerCase();
     const timestamp = url.split('/').pop().split('.')[0];
-    const mediaType = fileExtension === 'mp4' ? '视频' : '图片';
-    
+    const mediaType = fileExtension;
+    let displayUrl = url;
+    const supportedImageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'svg'];
+    const supportedVideoExtensions = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'];
+    const isSupported = [...supportedImageExtensions, ...supportedVideoExtensions].includes(fileExtension);
+    const backgroundStyle = isSupported ? '' : `style="font-size: 50px; display: flex; justify-content: center; align-items: center;"`;
+    const icon = isSupported ? '' : '📁';
     return `
-    <div class="media-container" data-key="${url}" onclick="toggleImageSelection(this)">
+    <div class="media-container" data-key="${url}" onclick="toggleImageSelection(this)" ${backgroundStyle}>
       <div class="media-type">${mediaType}</div>
-      ${mediaType === '视频' ? `
-        <video class="gallery-video" style="width: 100%; height: 100%; object-fit: contain;" data-src="${url}" controls>
-          <source src="" type="video/mp4">
+      ${supportedVideoExtensions.includes(fileExtension) ? `
+        <video class="gallery-video" preload="none" style="width: 100%; height: 100%; object-fit: contain;" controls>
+          <source data-src="${displayUrl}" type="video/${fileExtension}">
           您的浏览器不支持视频标签。
         </video>
       ` : `
-        <img class="gallery-image lazy" data-src="${url}" alt="Image">
+        ${isSupported ? `<img class="gallery-image lazy" data-src="${displayUrl}" alt="Image">` : icon}
       `}
       <div class="upload-time">上传时间: ${new Date(parseInt(timestamp)).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</div>
     </div>
@@ -712,7 +738,7 @@ async function generateAdminPage(DATABASE) {
   
     async function deleteSelectedImages() {
       if (selectedKeys.size === 0) return;
-      const confirmation = confirm('你确定要删除选中的媒体文件吗？此操作无法撤销。');
+      const confirmation = confirm('你确定要删除选中的媒体文件吗？此操作无法撤回。');
       if (!confirmation) return;
   
       const response = await fetch('/delete-images', {
@@ -788,18 +814,15 @@ async function generateAdminPage(DATABASE) {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const container = entry.target;
-            const mediaType = container.querySelector('.media-type').textContent;
-  
-            if (mediaType === '视频') {
-              const video = container.querySelector('video');
-              if (video && !video.src) {
-                video.src = video.dataset.src;
-                video.load();
-              }
+            const video = container.querySelector('video');
+            if (video) {
+              const source = video.querySelector('source');
+              video.src = source.getAttribute('data-src');
+              video.load();
             } else {
               const img = container.querySelector('img');
               if (img && !img.src) {
-                img.src = img.dataset.src;
+                img.src = img.getAttribute('data-src');
                 img.onload = () => img.classList.add('loaded');
               }
             }
@@ -855,11 +878,14 @@ async function fetchMediaData(DATABASE) {
   return mediaData.map(({ fileId, url }) => ({ fileId, url }));
 }
 
-async function handleUploadRequest(request, DATABASE, enableAuth, USERNAME, PASSWORD, domain, TG_BOT_TOKEN, TG_CHAT_ID) {
+async function handleUploadRequest(request, DATABASE, enableAuth, USERNAME, PASSWORD, domain, TG_BOT_TOKEN, TG_CHAT_ID, maxSize) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
     if (!file) throw new Error('缺少文件');
+    if (file.size > maxSize) {
+      return new Response(JSON.stringify({ error: `文件大小超过${maxSize / (1024 * 1024)}MB限制` }), { status: 413, headers: { 'Content-Type': 'application/json' } });
+    }
     if (enableAuth && !authenticate(request, USERNAME, PASSWORD)) {
       return new Response('Unauthorized', { status: 401, headers: { 'WWW-Authenticate': 'Basic realm="Admin"' } });
     }
@@ -964,7 +990,10 @@ async function handleBingImagesRequest(request) {
   return response;
 }
 
-async function handleDeleteImagesRequest(request, DATABASE) {
+async function handleDeleteImagesRequest(request, DATABASE, USERNAME, PASSWORD) {
+  if (!authenticate(request, USERNAME, PASSWORD)) {
+    return new Response('Unauthorized', { status: 401, headers: { 'WWW-Authenticate': 'Basic realm="Admin"' } });
+  }
   if (request.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
   }
