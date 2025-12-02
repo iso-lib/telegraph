@@ -53,9 +53,9 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
   <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Telegraph图床-基于Workers的图床服务">
-  <meta name="keywords" content="Telegraph图床,Workers图床, Cloudflare, Workers,telegra.ph, 图床">
-  <title>Telegraph图床-基于Workers的图床服务</title>
+  <meta name="description" content="随意文件床-基于Workers的图床/文件床/视频床服务">
+  <meta name="keywords" content="Telegraph图床,Workers图床, telegraph文件床, telegraph视频床, Cloudflare, Workers,telegra.ph, 图床">
+  <title>随意文件床-基于TG-BOT的文件床服务</title>
   <link rel="icon" href="https://p1.meituan.net/csc/c195ee91001e783f39f41ffffbbcbd484286.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css" integrity="sha512-T584yQ/tdRR5QwOpfvDfVQUidzfgc2339Lc8uBDtcp/wYu80d7jwBgAxbyMh0a9YM9F8N3tdErpFI8iaGx6x5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.7/css/fileinput.min.css" integrity="sha512-qPjB0hQKYTx1Za9Xip5h0PXcxaR1cRbHuZHo9z+gb5IgM6ZOTtIH4QLITCxcCp/8RMXtw2Z85MIZLv6LfGTLiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -88,7 +88,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
           padding: 20px;
           width: 90%;
-          max-width: 400px;
+          max-width: 600px;
           text-align: center;
           margin: 0 auto;
           position: relative;
@@ -162,7 +162,7 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
 <body>
   <div class="background" id="background"></div>
   <div class="card">
-      <div class="title">Telegraph图床</div>
+      <div class="title">随意文件床</div>
       <button type="button" class="btn" id="viewCacheBtn" title="查看历史记录"><i class="fas fa-clock"></i></button>
       <button type="button" class="btn" id="compressionToggleBtn"><i class="fas fa-compress"></i></button>
       <div class="card-body">
@@ -181,6 +181,16 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
               <div id="cacheContent" style="display: none;"></div>
           </form>
       </div>
+        <p style="font-size: 16px; text-align: center;">
+          支持一切文件格式，包括且不限于图片，视频，文档等
+        </p>
+        <p style="font-size: 14px; text-align: center;">
+          可多选文件上传，文件大小需 ≤ 100MB 
+        </p>
+        <p>
+        <p style="font-size: 18px; color:green;text-align: center;">
+          长期 | 安全 | 稳定 | 免费
+        </p>
       <p class="project-link">项目开源于 GitHub - <a href="https://github.com/0-RTT/telegraph" target="_blank" rel="noopener noreferrer">0-RTT/telegraph</a></p>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.7/js/fileinput.min.js" integrity="sha512-CCLv901EuJXf3k0OrE5qix8s2HaCDpjeBERR2wVHUwzEIc7jfiK9wqJFssyMOc1lJ/KvYKsDenzxbDTAQ4nh1w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
