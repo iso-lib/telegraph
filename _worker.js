@@ -28,7 +28,7 @@ function extractConfig(env) {
     enableAuth: env.ENABLE_AUTH === 'true',
     tgBotToken: env.TG_BOT_TOKEN,
     tgChatId: env.TG_CHAT_ID,
-    maxSize: (env.MAX_SIZE_MB ? parseInt(env.MAX_SIZE_MB, 10) : 100) * 1024 * 1024
+    maxSize: (env.MAX_SIZE_MB ? parseInt(env.MAX_SIZE_MB, 10) : 20) * 1024 * 1024
   };
 }
 
@@ -452,7 +452,7 @@ async function handleRootRequest(request, config) {
           支持一切文件格式，包括且不限于图片，视频，文档等
         </p>
         <p style="font-size: 14px; text-align: center;">
-          可多选文件上传，文件大小需 ≤ 100MB 
+          可多选文件上传，文件大小需 ≤ 30MB 
         </p>
         <p>
         <p style="font-size: 18px; color:green;text-align: center;">
