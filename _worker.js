@@ -132,10 +132,10 @@ async function handleRootRequest(request, config) {
   <link rel="icon" href="https://p1.meituan.net/csc/c195ee91001e783f39f41ffffbbcbd484286.ico" type="image/x-icon">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css" integrity="sha512-T584yQ/tdRR5QwOpfvDfVQUidzfgc2339Lc8uBDtcp/wYu80d7jwBgAxbyMh0a9YM9F8N3tdErpFI8iaGx6x5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.7/css/fileinput.min.css" integrity="sha512-qPjB0hQKYTx1Za9Xip5h0PXcxaR1cRbHuZHo9z+gb5IgM6ZOTtIH4QLITCxcCp/8RMXtw2Z85MIZLv6LfGTLiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css" integrity="sha512-T584yQ/tdRR5QwOpfvDfVQUidzfgc2339Lc8uBDtcp/wYu80d7jwBgAxbyMh0a9YM[...]
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.7/css/fileinput.min.css" integrity="sha512-qPjB0hQKYTx1Za9Xip5h0PXcxaR1cRbHuZHo9z+gb5IgM6ZOTtIH4QLITCxcCp/[...]
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51g[...]
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/[...]
   <style>
       body {
           margin: 0;
@@ -454,15 +454,18 @@ async function handleRootRequest(request, config) {
         <p style="font-size: 14px; text-align: center;">
           可多选文件上传，文件大小需 ≤ 30MB 
         </p>
-        <p>
         <p style="font-size: 18px; color:green;text-align: center;">
           长期 | 安全 | 稳定 | 免费
       </p>
+      <p id="uptimeDays" style="font-size:16px; text-align:center; color:#333; margin-top:8px;">
+        <!-- 文本由脚本填充 -->
+      </p>
+      <p>
       <p class="project-link">项目开源于 GitHub - <a href="https://github.com/0-RTT/telegraph" target="_blank" rel="noopener noreferrer">0-RTT/telegraph</a></p>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.7/js/fileinput.min.js" integrity="sha512-CCLv901EuJXf3k0OrE5qix8s2HaCDpjeBERR2wVHUwzEIc7jfiK9wqJFssyMOc1lJ/KvYKsDenzxbDTAQ4nh1w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.7/js/locales/zh.min.js" integrity="sha512-IizKWmZY3aznnbFx/Gj8ybkRyKk7wm+d7MKmEgOMRQDN1D1wmnDRupfXn6X04pwIyKFWsmFVgrcl0j6W3Z5FDQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crosso[...]
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.7/js/fileinput.min.js" integrity="sha512-CCLv901EuJXf3k0OrE5qix8s2HaCDpjeBERR2wVHUwzEIc7jfiK9wqJFssyMOc1lJ/KvYKsDenzxb[...]
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.7/js/locales/zh.min.js" integrity="sha512-IizKWmZY3aznnbFx/Gj8ybkRyKk7wm+d7MKmEgOMRQDN1D1wmnDRupfXn6X04pwIyKFWsmFVgrcl[...]
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" cro[...]
       <script>
       function formatLinks(urls, format) {
         switch (format) {
@@ -912,6 +915,38 @@ async function handleRootRequest(request, config) {
           $('.form-group').show();
           adjustTextareaHeight($('#fileLink')[0]);
         });
+
+        // 计算并显示运行天数，从 2025-01-01 开始
+        function updateUptimeDays() {
+          try {
+            const start = new Date(2025, 0, 1); // 2025-01-01 (month 0 = January)
+            const now = new Date();
+
+            // 只比较年月日以避免时区/时分秒差异产生 ±1 天误差
+            const utcNow = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+            const utcStart = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+
+            const msPerDay = 24 * 60 * 60 * 1000;
+            let days = Math.floor((utcNow - utcStart) / msPerDay);
+
+            // 如果希望把起始日（2025-01-01）也算作第 1 天，可以启用下面一行：
+            // days = days + 1;
+
+            if (days < 0) days = 0;
+
+            const el = document.getElementById('uptimeDays');
+            if (el) {
+              el.textContent = `截止今天，本网站已持续运营${days}天`;
+            }
+          } catch (e) {
+            console.error('updateUptimeDays error', e);
+          }
+        }
+
+        // 初始执行并设置周期更新（每小时），确保跨日也会自动刷新
+        updateUptimeDays();
+        setInterval(updateUptimeDays, 60 * 60 * 1000);
+
       });
     </script>    
 </body>
@@ -1125,597 +1160,3 @@ async function generateAdminPage(DATABASE, page = 1) {
         border: none;
         border-radius: 10px;
         padding: 10px 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: auto;
-        font-weight: 500;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      }
-      .delete-button:hover, .copy-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-      }
-      .delete-button:active, .copy-button:active {
-        transform: translateY(0);
-      }
-      .hidden {
-        display: none;
-      }
-      .dropdown {
-        position: relative;
-        display: inline-block;
-      }
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        min-width: 140px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        z-index: 1001;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        overflow: hidden;
-        right: 0;
-      }
-      .dropdown-content button {
-        color: #333;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        background: none;
-        border: none;
-        width: 100%;
-        text-align: left;
-        font-size: 14px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-      }
-      .dropdown-content button:hover {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        color: #667eea;
-      }
-      .dropdown:hover .dropdown-content {
-        display: block;
-      }
-      .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
-        margin: 25px 0;
-        flex-wrap: wrap;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 16px;
-        backdrop-filter: blur(8px);
-      }
-      .pagination button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 24px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: 500;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      }
-      .pagination button:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-      }
-      .pagination button:disabled {
-        background: linear-gradient(135deg, #ccc 0%, #aaa 100%);
-        cursor: not-allowed;
-        box-shadow: none;
-      }
-      .pagination .page-info {
-        color: #555;
-        font-weight: 500;
-        padding: 0 15px;
-      }
-      .empty-state {
-        text-align: center;
-        padding: 80px 20px;
-        color: #999;
-        font-size: 18px;
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 16px;
-        backdrop-filter: blur(8px);
-      }
-      .empty-state i {
-        font-size: 72px;
-        margin-bottom: 20px;
-        display: block;
-        opacity: 0.4;
-      }
-      @media (max-width: 768px) {
-        body {
-          padding: 15px;
-        }
-        .page-title {
-          font-size: 24px;
-          margin-bottom: 15px;
-        }
-        .header {
-          top: 5px;
-          padding: 12px 15px;
-          border-radius: 12px;
-        }
-        .header-left, .header-right {
-          flex: 1 1 100%;
-          justify-content: flex-start;
-        }
-        .header-left {
-          font-size: 14px;
-        }
-        .header-right {
-          margin-top: 10px;
-        }
-        .gallery {
-          grid-template-columns: repeat(2, 1fr);
-          gap: 12px;
-        }
-        .media-container {
-          border-radius: 12px;
-        }
-        .delete-button, .copy-button {
-          padding: 8px 16px;
-          font-size: 14px;
-          min-height: 44px;
-          border-radius: 8px;
-        }
-        .pagination {
-          padding: 12px;
-          border-radius: 12px;
-        }
-        .pagination button {
-          padding: 8px 16px;
-          font-size: 14px;
-        }
-        .pagination .page-info {
-          font-size: 14px;
-        }
-      }
-    </style>
-    <script>
-    let selectedCount = 0;
-    const selectedKeys = new Set();
-    let isAllSelected = false;
-  
-    function toggleImageSelection(container) {
-      const key = container.getAttribute('data-key');
-      container.classList.toggle('selected');
-      const uploadTime = container.querySelector('.upload-time');
-      if (container.classList.contains('selected')) {
-        selectedKeys.add(key);
-        selectedCount++;
-        uploadTime.style.display = 'block';
-      } else {
-        selectedKeys.delete(key);
-        selectedCount--;
-        uploadTime.style.display = 'none';
-      }
-      updateDeleteButton();
-    }
-  
-    function updateDeleteButton() {
-      const deleteButton = document.getElementById('delete-button');
-      const countDisplay = document.getElementById('selected-count');
-      countDisplay.textContent = selectedCount;
-      const headerRight = document.querySelector('.header-right');
-      if (selectedCount > 0) {
-        headerRight.classList.remove('hidden');
-      } else {
-        headerRight.classList.add('hidden');
-      }
-    }
-  
-    async function deleteSelectedImages() {
-      if (selectedKeys.size === 0) return;
-      const confirmation = confirm('你确定要删除选中的媒体文件吗？此操作无法撤回。');
-      if (!confirmation) return;
-
-      const keysToDelete = Array.from(selectedKeys);
-      const response = await fetch('/delete-images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(keysToDelete)
-      });
-
-      if (response.ok) {
-        // 局部更新 DOM，添加淡出动画
-        const containers = document.querySelectorAll('.media-container');
-        const containersToRemove = [];
-
-        containers.forEach(container => {
-          const key = container.getAttribute('data-key');
-          if (selectedKeys.has(key)) {
-            containersToRemove.push(container);
-            container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            container.style.opacity = '0';
-            container.style.transform = 'scale(0.8)';
-          }
-        });
-
-        // 等待动画完成后移除元素
-        setTimeout(() => {
-          containersToRemove.forEach(container => container.remove());
-
-          // 更新媒体文件总数
-          const totalCountElement = document.querySelector('.header-left span:first-child');
-          const currentTotal = parseInt(totalCountElement.textContent.match(/\\d+/)[0]);
-          const newTotal = currentTotal - keysToDelete.length;
-          totalCountElement.textContent = '媒体文件 ' + newTotal + ' 个';
-
-          // 更新分页信息
-          const pageInfo = document.querySelector('.page-info');
-          if (pageInfo) {
-            const match = pageInfo.textContent.match(/共 (\\d+) 个/);
-            if (match) {
-              pageInfo.textContent = pageInfo.textContent.replace(/共 \\d+ 个/, '共 ' + newTotal + ' 个');
-            }
-          }
-
-          // 重置选择状态
-          selectedKeys.clear();
-          selectedCount = 0;
-          isAllSelected = false;
-          updateDeleteButton();
-
-          alert('选中的媒体已删除');
-        }, 300);
-      } else {
-        alert('删除失败');
-      }
-    }
-  
-    function copyFormattedLinks(format) {
-      const urls = Array.from(selectedKeys).map(url => url.trim()).filter(url => url !== '');
-      const formattedLinks = formatLinks(urls, format);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(formattedLinks).then(() => {
-          alert('复制成功');
-        }).catch(() => {
-          alert('复制失败');
-        });
-      } else {
-        const textarea = document.createElement('textarea');
-        textarea.value = formattedLinks;
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-          document.execCommand('copy');
-          alert('复制成功');
-        } catch (err) {
-          alert('复制失败');
-        }
-        document.body.removeChild(textarea);
-      }
-    }
-
-    function formatLinks(urls, format) {
-      switch (format) {
-        case 'url':
-          return urls.join('\\n\\n');
-        case 'bbcode':
-          return urls.map(url => '[img]' + url + '[/img]').join('\\n\\n');
-        case 'markdown':
-          return urls.map(url => '![image](' + url + ')').join('\\n\\n');
-        default:
-          return urls.join('\\n');
-      }
-    }
-  
-    function selectAllImages() {
-      const mediaContainers = Array.from(document.querySelectorAll('.media-container'));
-      const batchSize = 20;
-      let index = 0;
-
-      function processBatch() {
-        const end = Math.min(index + batchSize, mediaContainers.length);
-
-        for (let i = index; i < end; i++) {
-          const container = mediaContainers[i];
-          if (isAllSelected) {
-            container.classList.remove('selected');
-            const key = container.getAttribute('data-key');
-            selectedKeys.delete(key);
-            container.querySelector('.upload-time').style.display = 'none';
-          } else {
-            if (!container.classList.contains('selected')) {
-              container.classList.add('selected');
-              const key = container.getAttribute('data-key');
-              selectedKeys.add(key);
-              container.querySelector('.upload-time').style.display = 'block';
-            }
-          }
-        }
-
-        index = end;
-
-        if (index < mediaContainers.length) {
-          requestAnimationFrame(processBatch);
-        } else {
-          if (isAllSelected) {
-            selectedCount = 0;
-          } else {
-            selectedCount = selectedKeys.size;
-          }
-          isAllSelected = !isAllSelected;
-          updateDeleteButton();
-        }
-      }
-
-      requestAnimationFrame(processBatch);
-    }
-  
-    document.addEventListener('DOMContentLoaded', () => {
-      const mediaContainers = document.querySelectorAll('.media-container[data-key]');
-      const options = {
-        root: null,
-        rootMargin: '100px',
-        threshold: 0.01
-      };
-
-      const mediaObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const container = entry.target;
-            const skeleton = container.querySelector('.skeleton');
-            const video = container.querySelector('video');
-            if (video) {
-              const source = video.querySelector('source');
-              if (source && source.dataset.src) {
-                video.src = source.dataset.src;
-                video.load();
-                video.onloadeddata = () => {
-                  video.classList.add('loaded');
-                  if (skeleton) skeleton.classList.add('hidden');
-                };
-              }
-            } else {
-              const img = container.querySelector('img');
-              if (img && img.dataset.src && !img.src) {
-                img.src = img.dataset.src;
-                img.onload = () => {
-                  img.classList.add('loaded');
-                  if (skeleton) skeleton.classList.add('hidden');
-                };
-                img.onerror = () => {
-                  if (skeleton) skeleton.classList.add('hidden');
-                };
-              } else if (!img) {
-                if (skeleton) skeleton.classList.add('hidden');
-              }
-            }
-            observer.unobserve(container);
-          }
-        });
-      }, options);
-
-      mediaContainers.forEach(container => {
-        mediaObserver.observe(container);
-      });
-    });
-  </script>
-  </head>
-  <body>
-    <h1 class="page-title">图库管理</h1>
-    <div class="header">
-      <div class="header-left">
-        <span>媒体文件 ${totalCount.count} 个</span>
-        <span>已选中: <span id="selected-count">0</span>个</span>
-      </div>
-      <div class="header-right hidden">
-        <div class="dropdown">
-          <button class="copy-button">复制</button>
-          <div class="dropdown-content">
-            <button onclick="copyFormattedLinks('url')">URL</button>
-            <button onclick="copyFormattedLinks('bbcode')">BBCode</button>
-            <button onclick="copyFormattedLinks('markdown')">Markdown</button>
-          </div>
-        </div>
-        <button id="select-all-button" class="delete-button" onclick="selectAllImages()">全选</button>
-        <button id="delete-button" class="delete-button" onclick="deleteSelectedImages()">删除</button>
-      </div>
-    </div>
-    <div class="gallery">
-      ${mediaData.length === 0 ? '<div class="empty-state"><i>📁</i><div>暂无媒体文件</div></div>' : mediaHtml}
-    </div>
-    ${mediaData.length > 0 ? `
-    <div class="pagination">
-      <button onclick="goToPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>上一页</button>
-      <span class="page-info">第 ${page} / ${totalPages} 页 (共 ${totalCount.count} 个)</span>
-      <button onclick="goToPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>下一页</button>
-    </div>
-    ` : ''}
-    <div class="footer">
-      到底啦
-    </div>
-    <script>
-      function goToPage(pageNum) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('page', pageNum);
-        window.location.href = url.toString();
-      }
-    </script>
-  </body>
-  </html>
-  `;
-  return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-}
-
-async function fetchMediaData(DATABASE, limit = null, offset = 0) {
-  let query = 'SELECT url, fileId FROM media ORDER BY url DESC';
-  if (limit !== null) {
-    query += ` LIMIT ${limit} OFFSET ${offset}`;
-  }
-  const result = await DATABASE.prepare(query).all();
-  return result.results.map(row => ({ fileId: row.fileId, url: row.url }));
-}
-
-async function handleUploadRequest(request, config) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file');
-    if (!file) throw new Error('缺少文件');
-    if (file.size > config.maxSize) {
-      return jsonResponse({ error: `文件大小超过${config.maxSize / (1024 * 1024)}MB限制` }, 413);
-    }
-    if (config.enableAuth && !authenticate(request, config.username, config.password)) {
-      return unauthorizedResponse();
-    }
-    const uploadFormData = new FormData();
-    uploadFormData.append("chat_id", config.tgChatId);
-    if (file.type.startsWith('image/gif')) {
-      const newFileName = file.name.replace(/\.gif$/, '.jpeg');
-      const newFile = new File([file], newFileName, { type: 'image/jpeg' });
-      uploadFormData.append("document", newFile);
-    } else {
-      uploadFormData.append("document", file);
-    }
-    const telegramResponse = await fetch(
-      `https://api.telegram.org/bot${config.tgBotToken}/sendDocument`,
-      { method: 'POST', body: uploadFormData }
-    );
-    if (!telegramResponse.ok) {
-      const errorData = await telegramResponse.json();
-      throw new Error(errorData.description || '上传到 Telegram 失败');
-    }
-    const responseData = await telegramResponse.json();
-    const fileId = responseData.result.video?.file_id
-      || responseData.result.document?.file_id
-      || responseData.result.sticker?.file_id;
-    if (!fileId) throw new Error('返回的数据中没有文件 ID');
-    const fileExtension = getFileExtension(file.name);
-    const timestamp = Date.now();
-    const isImage = CONTENT_TYPE_MAP[fileExtension]?.startsWith('image/');
-    const imageURL = `https://${config.domain}/${timestamp}.${fileExtension}`;
-    await config.database.prepare(
-      'INSERT INTO media (url, fileId) VALUES (?, ?) ON CONFLICT(url) DO NOTHING'
-    ).bind(imageURL, fileId).run();
-    return jsonResponse({ data: imageURL });
-  } catch (error) {
-    console.error('内部服务器错误:', error);
-    return jsonResponse({ error: error.message }, 500);
-  }
-}
-
-async function handleImageRequest(request, config) {
-  const requestedUrl = request.url;
-  const cache = caches.default;
-  const cacheKey = new Request(requestedUrl);
-  const cachedResponse = await cache.match(cacheKey);
-  if (cachedResponse) return cachedResponse;
-  const result = await config.database.prepare(
-    'SELECT fileId FROM media WHERE url = ?'
-  ).bind(requestedUrl).first();
-  if (!result) {
-    const notFoundResponse = new Response('资源不存在', { status: 404 });
-    await cache.put(cacheKey, notFoundResponse.clone());
-    return notFoundResponse;
-  }
-  const fileId = result.fileId;
-  let filePath;
-  for (let attempts = 0; attempts < 3; attempts++) {
-    const getFilePath = await fetch(
-      `https://api.telegram.org/bot${config.tgBotToken}/getFile?file_id=${fileId}`
-    );
-    if (getFilePath.ok) {
-      const fileData = await getFilePath.json();
-      if (fileData.ok && fileData.result.file_path) {
-        filePath = fileData.result.file_path;
-        break;
-      }
-    }
-  }
-  if (!filePath) {
-    const notFoundResponse = new Response('未找到FilePath', { status: 404 });
-    await cache.put(cacheKey, notFoundResponse.clone());
-    return notFoundResponse;
-  }
-  const getFileResponse = `https://api.telegram.org/file/bot${config.tgBotToken}/${filePath}`;
-  const response = await fetch(getFileResponse);
-  if (!response.ok) {
-    return new Response('获取文件内容失败', { status: 500 });
-  }
-  const fileExtension = getFileExtension(requestedUrl);
-  const contentType = getContentType(fileExtension);
-  const headers = new Headers(response.headers);
-  headers.set('Content-Type', contentType);
-  headers.set('Content-Disposition', 'inline');
-  headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}`);
-  headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}`);
-  const responseToCache = new Response(response.body, {
-    status: response.status,
-    headers
-  });
-  await cache.put(cacheKey, responseToCache.clone());
-  return responseToCache;
-}
-
-async function handleBingImagesRequest() {
-  const cache = caches.default;
-  const cacheKey = new Request('https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=5');
-  const cachedResponse = await cache.match(cacheKey);
-  if (cachedResponse) return cachedResponse;
-  const res = await fetch(cacheKey);
-  if (!res.ok) {
-    return new Response('请求 Bing API 失败', { status: res.status });
-  }
-  const bingData = await res.json();
-  const images = bingData.images.map(image => ({
-    url: `https://cn.bing.com${image.url}`
-  }));
-  const returnData = {
-    status: true,
-    message: "操作成功",
-    data: images
-  };
-  const response = createCachedResponse(
-    JSON.stringify(returnData),
-    'application/json',
-    CACHE_CONFIG.API
-  );
-  await cache.put(cacheKey, response.clone());
-  return response;
-}
-
-async function handleDeleteImagesRequest(request, config) {
-  if (!authenticate(request, config.username, config.password)) {
-    return unauthorizedResponse();
-  }
-  if (request.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
-  }
-  try {
-    const keysToDelete = await request.json();
-    if (!Array.isArray(keysToDelete) || keysToDelete.length === 0) {
-      return jsonResponse({ message: '没有要删除的项' }, 400);
-    }
-    const placeholders = keysToDelete.map(() => '?').join(',');
-    const cache = caches.default;
-
-    const [dbResult] = await Promise.all([
-      config.database.prepare(
-        `DELETE FROM media WHERE url IN (${placeholders})`
-      ).bind(...keysToDelete).run(),
-      Promise.all(keysToDelete.map(async (url) => {
-        const cacheKey = new Request(url);
-        await cache.delete(cacheKey);
-      }))
-    ]);
-
-    if (dbResult.changes === 0) {
-      return jsonResponse({ message: '未找到要删除的项' }, 404);
-    }
-
-    return jsonResponse({ message: '删除成功' });
-  } catch (error) {
-    return jsonResponse({ error: '删除失败', details: error.message }, 500);
-  }
-}
