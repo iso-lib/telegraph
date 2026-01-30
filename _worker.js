@@ -918,34 +918,23 @@ async function handleRootRequest(request, config) {
         // 计算并显示运行天数，从 2025-01-01 开始
         function updateUptimeDays() {
           try {
-            const start = new Date(2025, 0, 1); // 2025-01-01 (month 0 = January)
+            const start = new Date(2025, 0, 1);
             const now = new Date();
-
-            // 只比较年月日以避免时区/时分秒差异产生 ±1 天误差
             const utcNow = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
             const utcStart = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
-
             const msPerDay = 24 * 60 * 60 * 1000;
             let days = Math.floor((utcNow - utcStart) / msPerDay);
-
-            // 如果希望把起始日（2025-01-01）也算作第 1 天，可以启用下面一行：
-            // days = days + 1;
-
             if (days < 0) days = 0;
-
             const el = document.getElementById('uptimeDays');
             if (el) {
-              el.textContent = `截止今天，本网站已���续运营${days}天`;
+              el.textContent = '截止今天，本网站已连续运营' + days + '天';
             }
           } catch (e) {
             console.error('updateUptimeDays error', e);
           }
         }
-
-        // 初始执行并设置周期更新（每小时），确保跨日也会自动刷新
         updateUptimeDays();
         setInterval(updateUptimeDays, 60 * 60 * 1000);
-
       });
     </script>    
 </body>
@@ -1361,7 +1350,6 @@ async function generateAdminPage(DATABASE, page = 1) {
       });
 
       if (response.ok) {
-        // 局部更新 DOM，添加淡出动画
         const containers = document.querySelectorAll('.media-container');
         const containersToRemove = [];
 
@@ -1375,17 +1363,14 @@ async function generateAdminPage(DATABASE, page = 1) {
           }
         });
 
-        // 等待动画完成后移除元素
         setTimeout(() => {
           containersToRemove.forEach(container => container.remove());
 
-          // 更新媒体文件总数
           const totalCountElement = document.querySelector('.header-left span:first-child');
           const currentTotal = parseInt(totalCountElement.textContent.match(/\\d+/)[0]);
           const newTotal = currentTotal - keysToDelete.length;
           totalCountElement.textContent = '媒体文件 ' + newTotal + ' 个';
 
-          // 更新分页信息
           const pageInfo = document.querySelector('.page-info');
           if (pageInfo) {
             const match = pageInfo.textContent.match(/共 (\\d+) 个/);
@@ -1394,7 +1379,6 @@ async function generateAdminPage(DATABASE, page = 1) {
             }
           }
 
-          // 重置选择状态
           selectedKeys.clear();
           selectedCount = 0;
           isAllSelected = false;
