@@ -1,3 +1,6 @@
 name = "file-store"
 main = "_worker.js"
 compatibility_date = "2026-01-30"
+
+[cache]
+enabled = true
