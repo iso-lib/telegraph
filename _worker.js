@@ -14,7 +14,7 @@ const CONTENT_TYPE_MAP = {
 
 const CACHE_CONFIG = {
   HTML: 3600,
-  IMAGE: 2592000,
+  IMAGE: 86400,
   API: 300
 };
 
@@ -22,6 +22,8 @@ function extractConfig(env) {
   return {
     domain: env.DOMAIN,
     database: env.DATABASE,
+    bucket: env.BUCKET,        // R2 bucket binding，用于缓存文件字节，绕开 Worker 配额
+    r2Domain: env.R2_DOMAIN,   // 绑定到该 R2 桶的自定义域名，例如 img.yourdomain.com
     username: env.USERNAME,
     password: env.PASSWORD,
     adminPath: env.ADMIN_PATH,
@@ -1612,15 +1614,53 @@ async function handleUploadRequest(request, config) {
     const fileExtension = getFileExtension(file.name);
     const timestamp = Date.now();
     const isImage = CONTENT_TYPE_MAP[fileExtension]?.startsWith('image/');
-    const imageURL = `https://${config.domain}/${timestamp}.${fileExtension}`;
+    const objectKey = `${timestamp}.${fileExtension}`;
+    // 落库时仍然用 Worker 域名（老链接、后台管理、fallback 都靠它），不影响现有逻辑
+    const imageURL = `https://${config.domain}/${objectKey}`;
     await config.database.prepare(
       'INSERT INTO media (url, fileId) VALUES (?, ?) ON CONFLICT(url) DO NOTHING'
     ).bind(imageURL, fileId).run();
-    return jsonResponse({ data: imageURL });
+
+    // 同步写一份到 R2，作为真正对外分发的读取路径。
+    // R2 写失败不应该让整个上传失败——Telegram 那份已经落地了，
+    // 后续 handleImageRequest 的 fallback 逻辑会在下次访问时自动补写。
+    let publicURL = imageURL;
+    if (config.bucket) {
+      try {
+        const fileBuffer = await file.arrayBuffer();
+        await config.bucket.put(objectKey, fileBuffer, {
+          httpMetadata: { contentType: getContentType(fileExtension) }
+        });
+        if (config.r2Domain) {
+          publicURL = `https://${config.r2Domain}/${objectKey}`;
+        }
+      } catch (r2Error) {
+        console.error('写入 R2 失败，已回退到 Worker 域名链接:', r2Error);
+      }
+    }
+
+    return jsonResponse({ data: publicURL });
   } catch (error) {
     console.error('内部服务器错误:', error);
     return jsonResponse({ error: error.message }, 500);
   }
+}
+
+function getObjectKeyFromUrl(requestedUrl) {
+  return new URL(requestedUrl).pathname.replace(/^\/+/, '');
+}
+
+async function tryServeFromR2(config, objectKey) {
+  if (!config.bucket) return null;
+  const object = await config.bucket.get(objectKey);
+  if (!object) return null;
+  const fileExtension = getFileExtension(objectKey);
+  const headers = new Headers();
+  headers.set('Content-Type', object.httpMetadata?.contentType || getContentType(fileExtension));
+  headers.set('Content-Disposition', 'inline');
+  headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
+  headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
+  return new Response(object.body, { headers });
 }
 
 async function handleImageRequest(request, config) {
@@ -1629,6 +1669,18 @@ async function handleImageRequest(request, config) {
   const cacheKey = new Request(requestedUrl);
   const cachedResponse = await cache.match(cacheKey);
   if (cachedResponse) return cachedResponse;
+
+  const objectKey = getObjectKeyFromUrl(requestedUrl);
+
+  // 走到这里说明请求命中的是 Worker 域名（新链接应该都指向 R2 自定义域名，
+  // 根本不会经过这个函数）。这里先查一次 R2，多是历史链接或直接访问 Worker
+  // 域名的情况，能省掉一次 D1 查询 + 两次到 Telegram 的子请求。
+  const r2Response = await tryServeFromR2(config, objectKey);
+  if (r2Response) {
+    await cache.put(cacheKey, r2Response.clone());
+    return r2Response;
+  }
+
   const result = await config.database.prepare(
     'SELECT fileId FROM media WHERE url = ?'
   ).bind(requestedUrl).first();
@@ -1668,7 +1720,23 @@ async function handleImageRequest(request, config) {
   headers.set('Content-Disposition', 'inline');
   headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
   headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
-  const responseToCache = new Response(response.body, {
+
+  // 从 Telegram 拿到的字节先落一份 R2，下次同一张图就不用再走这段
+  // D1 查询 + 两次 Telegram 子请求了（如果配置了 R2_DOMAIN，下次干脆
+  // 连 Worker 都不会被调用）。响应体只能读一次，所以先转成 arrayBuffer
+  // 分别喂给「返回给客户端」和「写入 R2」两条路。
+  const fileBuffer = await response.arrayBuffer();
+  if (config.bucket) {
+    try {
+      await config.bucket.put(objectKey, fileBuffer, {
+        httpMetadata: { contentType }
+      });
+    } catch (r2Error) {
+      console.error('回填 R2 失败:', r2Error);
+    }
+  }
+
+  const responseToCache = new Response(fileBuffer, {
     status: response.status,
     headers
   });
@@ -1703,6 +1771,20 @@ async function handleBingImagesRequest() {
   return response;
 }
 
+async function deleteFromR2IfExists(bucket, objectKey) {
+  try {
+    // 老记录（在加 R2 之前上传的）在 R2 里本来就没有这个 key，
+    // 先 head 一下确认存在再删，避免对着空气调用/误报"删除成功"。
+    const existing = await bucket.head(objectKey);
+    if (!existing) return { objectKey, skipped: true };
+    await bucket.delete(objectKey);
+    return { objectKey, skipped: false };
+  } catch (error) {
+    console.error(`删除 R2 对象 ${objectKey} 失败:`, error);
+    return { objectKey, skipped: true, error: error.message };
+  }
+}
+
 async function handleDeleteImagesRequest(request, config) {
   if (!authenticate(request, config.username, config.password)) {
     return unauthorizedResponse();
@@ -1718,21 +1800,31 @@ async function handleDeleteImagesRequest(request, config) {
     const placeholders = keysToDelete.map(() => '?').join(',');
     const cache = caches.default;
 
-    const [dbResult] = await Promise.all([
+    const [dbResult, , r2Results] = await Promise.all([
       config.database.prepare(
         `DELETE FROM media WHERE url IN (${placeholders})`
       ).bind(...keysToDelete).run(),
       Promise.all(keysToDelete.map(async (url) => {
         const cacheKey = new Request(url);
         await cache.delete(cacheKey);
-      }))
+      })),
+      config.bucket
+        ? Promise.all(keysToDelete.map((url) =>
+            deleteFromR2IfExists(config.bucket, getObjectKeyFromUrl(url))
+          ))
+        : Promise.resolve([])
     ]);
 
     if (dbResult.changes === 0) {
       return jsonResponse({ message: '未找到要删除的项' }, 404);
     }
 
-    return jsonResponse({ message: '删除成功' });
+    const r2Deleted = r2Results.filter(r => !r.skipped).length;
+    return jsonResponse({
+      message: '删除成功',
+      r2Deleted,       // 实际从 R2 删掉的数量（老记录没有对应文件不会计入）
+      r2Skipped: r2Results.length - r2Deleted
+    });
   } catch (error) {
     return jsonResponse({ error: '删除失败', details: error.message }, 500);
   }
