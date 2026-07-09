@@ -14,7 +14,7 @@ const CONTENT_TYPE_MAP = {
 
 const CACHE_CONFIG = {
   HTML: 3600,
-  IMAGE: 86400,
+  IMAGE: 2592000,
   API: 300
 };
 
@@ -1666,8 +1666,8 @@ async function handleImageRequest(request, config) {
   const headers = new Headers(response.headers);
   headers.set('Content-Type', contentType);
   headers.set('Content-Disposition', 'inline');
-  headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}`);
-  headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}`);
+  headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
+  headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
   const responseToCache = new Response(response.body, {
     status: response.status,
     headers
