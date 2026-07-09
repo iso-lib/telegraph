@@ -14,7 +14,7 @@ const CONTENT_TYPE_MAP = {
 
 const CACHE_CONFIG = {
   HTML: 3600,
-  IMAGE: 86400,
+  IMAGE: 2592000, // 30天，图片URL基于时间戳生成、内容不可变，可以放心长缓存
   API: 300
 };
 
