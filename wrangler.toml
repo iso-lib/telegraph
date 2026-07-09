@@ -4,3 +4,10 @@ compatibility_date = "2026-01-30"
 
 [cache]
 enabled = true
+
+[[r2_buckets]]
+binding = "BUCKET"          # 对应 _worker.js 里的 env.BUCKET
+bucket_name = "telegraph-images"  # 换成你自己创建的 R2 桶名
+
+[vars]
+R2_DOMAIN = src.yohuo.eu.org
