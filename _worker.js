@@ -1,17 +1,32 @@
 const CONTENT_TYPE_MAP = {
+  // 图片
   'jpg': 'image/jpeg',
   'jpeg': 'image/jpeg',
   'png': 'image/png',
   'gif': 'image/gif',
   'webp': 'image/webp',
   'bmp': 'image/bmp',
-  'svg': 'image/svg+xml',
+  'svg': 'image/svg+xml',   // ⚠️ SVG 是可渲染的XML文档，可能包含<script>，存在被恶意利用做XSS的风险（沿用自原项目，非本次新增）
+  'ico': 'image/x-icon',
+  'avif': 'image/avif',
+  // 视频
   'mp4': 'video/mp4',
   'avi': 'video/x-msvideo',
   'mov': 'video/quicktime',
   'webm': 'video/webm',
-  // PDF 浏览器有原生内置阅读器，配合 inline 即可直接预览
+  // 音频（浏览器会显示原生播放器）
+  'mp3': 'audio/mpeg',
+  'wav': 'audio/wav',
+  'ogg': 'audio/ogg',
+  'm4a': 'audio/mp4',
+  'aac': 'audio/aac',
+  'flac': 'audio/flac',
+  // 文档（PDF 浏览器原生支持内嵌阅读）
   'pdf': 'application/pdf',
+  // 纯文本/结构化数据（浏览器内置查看器展示，不会执行任何代码，安全）
+  'txt': 'text/plain',
+  'json': 'application/json',
+  'xml': 'application/xml',
   // 以下 Office 文档类型即使 Content-Type 正确，浏览器也没有内置渲染器，
   // 依然会被当成下载处理——这是浏览器本身的限制，不是 Content-Type 的问题。
   // 正确设置至少能让"用其他方式打开/在线查看器"识别出真实文件类型。
@@ -20,8 +35,7 @@ const CONTENT_TYPE_MAP = {
   'xls': 'application/vnd.ms-excel',
   'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'ppt': 'application/vnd.ms-powerpoint',
-  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  'txt': 'text/plain'
+  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
 };
 
 const CACHE_CONFIG = {
@@ -74,6 +88,15 @@ function unauthorizedResponse() {
 
 function getFileExtension(url) {
   return url.split('.').pop().toLowerCase();
+}
+
+// SVG 本质是可渲染的 XML 文档，可以内嵌 <script>，inline 展示存在 XSS 风险，
+// 强制下载而不是内联预览。以后如果加其他"可执行文档"类型（比如 html），
+// 也应该加进这个集合里。
+const FORCE_DOWNLOAD_EXTENSIONS = new Set(['svg']);
+
+function getContentDisposition(fileExtension) {
+  return FORCE_DOWNLOAD_EXTENSIONS.has(fileExtension) ? 'attachment' : 'inline';
 }
 
 function generateRandomId(byteLength = 8) {
@@ -1680,7 +1703,7 @@ async function tryServeFromR2(config, objectKey) {
   const fileExtension = getFileExtension(objectKey);
   const headers = new Headers();
   headers.set('Content-Type', object.httpMetadata?.contentType || getContentType(fileExtension));
-  headers.set('Content-Disposition', 'inline');
+  headers.set('Content-Disposition', getContentDisposition(fileExtension));
   headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.STATIC_FILE}, immutable`);
   headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.STATIC_FILE}, immutable`);
   return new Response(object.body, { headers });
@@ -1740,7 +1763,7 @@ async function handleImageRequest(request, config) {
   const contentType = getContentType(fileExtension);
   const headers = new Headers(response.headers);
   headers.set('Content-Type', contentType);
-  headers.set('Content-Disposition', 'inline');
+  headers.set('Content-Disposition', getContentDisposition(fileExtension));
   headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.STATIC_FILE}, immutable`);
   headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.STATIC_FILE}, immutable`);
 
