@@ -9,7 +9,19 @@ const CONTENT_TYPE_MAP = {
   'mp4': 'video/mp4',
   'avi': 'video/x-msvideo',
   'mov': 'video/quicktime',
-  'webm': 'video/webm'
+  'webm': 'video/webm',
+  // PDF 浏览器有原生内置阅读器，配合 inline 即可直接预览
+  'pdf': 'application/pdf',
+  // 以下 Office 文档类型即使 Content-Type 正确，浏览器也没有内置渲染器，
+  // 依然会被当成下载处理——这是浏览器本身的限制，不是 Content-Type 的问题。
+  // 正确设置至少能让"用其他方式打开/在线查看器"识别出真实文件类型。
+  'doc': 'application/msword',
+  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'xls': 'application/vnd.ms-excel',
+  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'ppt': 'application/vnd.ms-powerpoint',
+  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'txt': 'text/plain'
 };
 
 const CACHE_CONFIG = {
