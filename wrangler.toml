@@ -1,14 +1,20 @@
 name = "file-store"
 main = "_worker.js"
 compatibility_date = "2026-01-30"
+
+# 防止每次部署（包括 GitHub 集成触发的自动部署）清空 Dashboard 里
+# 手动设置的环境变量和密钥（DOMAIN、TG_BOT_TOKEN、USERNAME、PASSWORD 等，
+# 这些没有写进本文件的 [vars]，属于"只在 Dashboard 管理"的配置）
 keep_vars = true
 
 [cache]
 enabled = true
 
+[[d1_databases]]
+binding = "DATABASE"        # 对应 _worker.js 里的 env.DATABASE
+database_name = "telegraph"    # 换成你自己创建时起的数据库名
+database_id = "5d701515-76a9-450d-a5d5-12ee02af15e1"  # D1数据库详情页顶部可以看到
+
 [[r2_buckets]]
 binding = "BUCKET"          # 对应 _worker.js 里的 env.BUCKET
 bucket_name = "telegraph-images"  # 换成你自己创建的 R2 桶名
-
-[vars]
-R2_DOMAIN = "src.yohuo.eu.org"
