@@ -14,7 +14,9 @@ const CONTENT_TYPE_MAP = {
 
 const CACHE_CONFIG = {
   HTML: 3600,
-  IMAGE: 2592000, // 30天，图片URL基于时间戳生成、内容不可变，可以放心长缓存
+  // 覆盖所有上传的文件类型（图片/视频/文档等），不只是图片。
+  // URL 基于时间戳生成、内容永不变，可以放心设成长缓存。
+  STATIC_FILE: 31536000, // 1年
   API: 300
 };
 
@@ -60,6 +62,13 @@ function unauthorizedResponse() {
 
 function getFileExtension(url) {
   return url.split('.').pop().toLowerCase();
+}
+
+function generateRandomId(byteLength = 8) {
+  // 8字节 = 16位十六进制 = 64位随机熵，靠时间戳猜/扫描基本不可行
+  const bytes = new Uint8Array(byteLength);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function getContentType(extension) {
@@ -1614,7 +1623,9 @@ async function handleUploadRequest(request, config) {
     const fileExtension = getFileExtension(file.name);
     const timestamp = Date.now();
     const isImage = CONTENT_TYPE_MAP[fileExtension]?.startsWith('image/');
-    const objectKey = `${timestamp}.${fileExtension}`;
+    // 用连字符拼接：前面的时间戳留给管理页解析"上传时间"用，
+    // 后面的随机串才是真正决定"链接猜不猜得到"的部分。
+    const objectKey = `${timestamp}-${generateRandomId()}.${fileExtension}`;
     // 落库时仍然用 Worker 域名（老链接、后台管理、fallback 都靠它），不影响现有逻辑
     const imageURL = `https://${config.domain}/${objectKey}`;
     await config.database.prepare(
@@ -1658,8 +1669,8 @@ async function tryServeFromR2(config, objectKey) {
   const headers = new Headers();
   headers.set('Content-Type', object.httpMetadata?.contentType || getContentType(fileExtension));
   headers.set('Content-Disposition', 'inline');
-  headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
-  headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
+  headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.STATIC_FILE}, immutable`);
+  headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.STATIC_FILE}, immutable`);
   return new Response(object.body, { headers });
 }
 
@@ -1718,8 +1729,8 @@ async function handleImageRequest(request, config) {
   const headers = new Headers(response.headers);
   headers.set('Content-Type', contentType);
   headers.set('Content-Disposition', 'inline');
-  headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
-  headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.IMAGE}, immutable`);
+  headers.set('Cache-Control', `public, max-age=${CACHE_CONFIG.STATIC_FILE}, immutable`);
+  headers.set('CDN-Cache-Control', `public, max-age=${CACHE_CONFIG.STATIC_FILE}, immutable`);
 
   // 从 Telegram 拿到的字节先落一份 R2，下次同一张图就不用再走这段
   // D1 查询 + 两次 Telegram 子请求了（如果配置了 R2_DOMAIN，下次干脆
